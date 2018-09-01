@@ -16,7 +16,7 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `people`
+-- Table structure for table `games`
 --
 CREATE DATABASE apidb;
 USE apidb;
@@ -33,14 +33,14 @@ CREATE TABLE `games` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `people`
+-- Dumping data for table `games`
 --
 
 LOCK TABLES `games` WRITE;
-/*!40000 ALTER TABLE `people` DISABLE KEYS */;
+/*!40000 ALTER TABLE `games` DISABLE KEYS */;
 INSERT INTO `games` VALUES (1,'Goldeneye 007',1997,'Nintendo 64'),(2,'Final Fantasy X',2001,'Playstation 2'),
 (3,'Halo 3',2007,'XBox 360'),(4,'Persona 5', 2017,'Playstation 4');
-/*!40000 ALTER TABLE `people` ENABLE KEYS */;
+/*!40000 ALTER TABLE `games` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
