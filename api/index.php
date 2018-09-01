@@ -33,11 +33,7 @@ $container['db'] = function ($c) {
 // test function i use to make sure app is working, returns Hello, ______
 $app->get('/hello/{name}', function (Request $request, Response $response, array $args) {
     $name = $args['name'];
-
-    $test1 = "test";
-    $test2 = "This is a test (" . $test1 . ")";
-    $response->getBody()->write($test2);
-    // $response->getBody()->write("Hello, $name");
+    $response->getBody()->write("Hello, $name");
     return $response;
 });
 
@@ -50,7 +46,11 @@ $app->get('/games', function (Request $request, Response $response) {
     return $jsonResponse;
 });
 
-// finds a game within the table by its id
+/*
+Function will find a game from the table based on the id given
+
+curl http://192.168.33.10/api/games/1
+*/
 $app->get('/games/{id}', function (Request $request, Response $response, array $args) {
     // gets id from the parameters to use for the query
     $id = $args['id'];
@@ -61,7 +61,11 @@ $app->get('/games/{id}', function (Request $request, Response $response, array $
     return $jsonResponse;
 });
 
-// deletes a game from the table based on the id passed in
+/*
+Function will delete a game from the table from the id given
+
+curl -X DELETE  http://192.168.33.10/api/games/2
+*/
 $app->delete('/games/{id}', function (Request $request, Response $response, array $args) {
   $id = $args['id'];
   $this->logger->addInfo("DELETE /games/".$id);
@@ -106,18 +110,23 @@ $app->put('/games/{id}', function (Request $request, Response $response, array $
     return $jsonResponse;
 });
 
-// INSERT INTO games (id, name, year, console) VALUES (5, Super Mario Bros, 1985, NES)
-// curl -X POST \
-//  http://192.168.33.10/api/games \
-//  -H 'Cache-Control: no-cache' \
-//  -H 'Content-Type: application/x-www-form-urlencoded' \
-//  -H 'Postman-Token: a23837f2-2b01-4776-89a8-8b528bd94aec' \
-//  -d 'id=5&name=Doom&year=2016&console=PS4'
+/*
+Function will add a row to the games table with the information provided.
+Similar to the update function, it constructs an INSERT query based on the data
+sent to it
 
+Test curl for adding a new game, id may need to be changed
+
+curl -X POST \
+ http://192.168.33.10/api/games \
+ -H 'Cache-Control: no-cache' \
+ -H 'Content-Type: application/x-www-form-urlencoded' \
+ -H 'Postman-Token: a23837f2-2b01-4776-89a8-8b528bd94aec' \
+ -d 'id=8&name=Doom&year=2016&console=PS4'
+*/
 $app->post('/games', function (Request $request, Response $response, array $args) {
     $this->logger->addInfo("POST /games");
 
-    $id = $args['id'];
     $addString = "INSERT INTO games ";
     $addString = $addString . "(";
 
@@ -137,20 +146,22 @@ $app->post('/games', function (Request $request, Response $response, array $args
     $addString = $addString . ") VALUES (";
     // second loop adds the values for each of the columns
     foreach($fields as $field => $value) {
-      $addString = $addString . "$value";
+      //adds quotes for the 2 strings that could be used for the query
+      if($field == "name" || $field == "console") {
+        $addString = $addString . " '$value' ";
+      }
+      //numbers
+      else {
+        $addString = $addString . "$value";
+      }
       if($field != $last_key) {
         $addString = $addString . ", ";
       }
     }
     // closes the create query from the information sent
     $addString = $addString . ");";
-
-    $this->db->exec($updateString);
-    // return updated record
-    // $game = $this->db->query('SELECT * from games where id='.$id)->fetch();
-    // $jsonResponse = $response->withJson($game);
-    // return $jsonResponse;
-
+    // query is executed
+    $this->db->exec($addString);
 });
 
 $app->run();
