@@ -235,4 +235,35 @@
     $this->assertSame(400, $response->getStatusCode());
     $this->assertSame('{"status":400,"message":"Invalid data provided to update"}', (string)$response->getBody());
   }
+
+
+  public function testUpdateGameNotFound() {
+    // expected result string
+    $resultString = '{"id":"1","name":"Chrono Cross","year":"1999","console":"Playstation 1"}';
+
+    // mock the query class & fetchAll functions
+    $query = $this->createMock('mockQuery');
+    $query->method('fetch')->willReturn(false);
+    $this->db->method('query')
+          ->willReturn($query);
+     $this->db->method('exec')
+        ->will($this->throwException(new PDOException()));
+
+    // mock the request environment.  (part of slim)
+    $env = Environment::mock([
+        'REQUEST_METHOD' => 'PUT',
+        'REQUEST_URI'    => '/games/1',
+        ]);
+    $req = Request::createFromEnvironment($env);
+    $requestBody = ["name" => "Chrono Cross", "year" => "1999", "console" => "Playstation 1"];
+    $req =  $req->withParsedBody($requestBody);
+    $this->app->getContainer()['request'] = $req;
+
+    // actually run the request through the app.
+    $response = $this->app->run(true);
+    // assert expected status code and body
+    $this->assertSame(404, $response->getStatusCode());
+    $this->assertSame('{"status":404,"message":"not found"}', (string)$response->getBody());
+
+  }
 }
