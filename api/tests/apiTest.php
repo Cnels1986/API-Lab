@@ -264,6 +264,23 @@
     // assert expected status code and body
     $this->assertSame(404, $response->getStatusCode());
     $this->assertSame('{"status":404,"message":"not found"}', (string)$response->getBody());
+  }
 
+
+  public function testDeleteGameFailed() {
+    $query = $this->createMock('mockQuery');
+    $this->db->method('exec')->willReturn(false);
+    $env = Environment::mock([
+        'REQUEST_METHOD' => 'DELETE',
+        'REQUEST_URI'    => '/games/1',
+        ]);
+    $req = Request::createFromEnvironment($env);
+    $this->app->getContainer()['request'] = $req;
+
+    // actually run the request through the app.
+    $response = $this->app->run(true);
+    // assert expected status code and body
+    $this->assertSame(404, $response->getStatusCode());
+    $this->assertSame('{"status":404,"message":"not found"}', (string)$response->getBody());
   }
 }

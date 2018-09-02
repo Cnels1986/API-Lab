@@ -72,8 +72,13 @@ class App
        $id = $args['id'];
        $this->logger->addInfo("DELETE /games/".$id);
        $game = $this->db->exec('DELETE FROM games where id='.$id);
-       $jsonResponse = $response->withJson($game);
-       return;
+       if($game){
+         $response = $response->withStatus(200);
+       } else {
+         $errorData = array('status' => 404, 'message' => 'not found');
+         $response = $response->withJson($errorData, 404);
+       }
+       return $response;
      });
 
      /*
@@ -121,7 +126,7 @@ class App
            $errorData = array('status' => 400, 'message' => 'Invalid data provided to update');
            return $response->withJson($errorData, 400);
          }
-         
+
          // return updated record
          $game = $this->db->query('SELECT * from games where id='.$id)->fetch();
          $jsonResponse = $response->withJson($game);
