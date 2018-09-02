@@ -33,6 +33,8 @@
       $this->app = (new nelson\api\App($this->db))->get();
     }
 
+
+    // test if check the hello name function works
     public function testHelloName() {
     $env = Environment::mock([
         'REQUEST_METHOD' => 'GET',
@@ -44,6 +46,8 @@
     $this->assertSame($response->getStatusCode(), 200);
     $this->assertSame((string)$response->getBody(), "Hello, Joe");
     }
+
+
 
     // test the GET games endpoint
     public function testGetGames() {
@@ -74,6 +78,8 @@
       $this->assertSame($resultString, (string)$response->getBody());
     }
 
+
+
     // Test to get a single game from the table
     public function testGetGame() {
 
@@ -96,6 +102,8 @@
       $this->assertSame(200, $response->getStatusCode());
       $this->assertSame($resultString, (string)$response->getBody());
     }
+
+
 
     // This test will test whether or not we can update the information for a game within the table
     public function testUpdateGame() {
@@ -128,4 +136,103 @@
       $this->assertSame(200, $response->getStatusCode());
       $this->assertSame($resultString, (string)$response->getBody());
     }
+
+
+
+    // Function will test whether the delete function is working for the api
+    public function testDeleteGame() {
+      $query = $this->createMock('mockQuery');
+      $this->db->method('exec')->willReturn(true);
+      $env = Environment::mock([
+          'REQUEST_METHOD' => 'DELETE',
+          'REQUEST_URI'    => '/games/1',
+          ]);
+      $req = Request::createFromEnvironment($env);
+      $this->app->getContainer()['request'] = $req;
+
+      // actually run the request through the app.
+      $response = $this->app->run(true);
+      // assert expected status code and body
+      $this->assertSame(200, $response->getStatusCode());
+    }
+
+
+/*
+    public function testCreateGame() {
+
+      // test successful request
+      // $resultString = '{"id":"10","name":"Super Mario 64","year":"1997","console":"Nintendo 64"}';
+
+      $query = $this->createMock('mockQuery');
+      $this->db->method('exec')->willReturn(true);
+      $env = Environment::mock([
+        'REQUEST_METHOD' => 'POST',
+        'REQUEST_URI' => '/games',
+      ]);
+
+      $req = Request::createFromEnvironment($env);
+      // $requestBody = ["name" => "Super Mario 64", "year" => "1997", "console" => "Nintendo 64"];
+      // $req =  $req->withParsedBody($requestBody);
+      $this->app->getContainer()['request'] = $req;
+
+      $response = $this->app->run(true);
+      $this->assertSame(200, $response->getStatusCode());
+      // $this->assertSame($resultString, (string)$response->getBody());
+    }
+  */
+
+
+
+  // fuction will deal with error handling when it comes to finding a game by its id
+  public function testGetGameFailed() {
+    $query = $this->createMock('mockQuery');
+    $query->method('fetch')->willReturn(false);
+    $this->db->method('query')->willReturn($query);
+    $env = Environment::mock([
+        'REQUEST_METHOD' => 'GET',
+        'REQUEST_URI'    => '/games/1',
+        ]);
+    $req = Request::createFromEnvironment($env);
+    $this->app->getContainer()['request'] = $req;
+
+    // actually run the request through the app.
+    $response = $this->app->run(true);
+    // assert expected status code and body
+    $this->assertSame($response->getStatusCode(), 404);
+    $this->assertSame('{"status":404,"message":"not found"}', (string)$response->getBody());
   }
+
+
+  // function deals with the error handling if the wrong data is sent when api is trying to update a game
+  public function testUpdateGameFailed() {
+    // expected result string
+    $resultString = '{"id":"1","name":"Chrono Cross","year":"1999","console":"Playstation 1"}';
+
+    // mock the query class & fetchAll functions
+    $query = $this->createMock('mockQuery');
+    $query->method('fetch')
+      ->willReturn(json_decode($resultString, true)
+    );
+    $this->db->method('query')
+          ->willReturn($query);
+    //mocks where the update failed!!!
+    $this->db->method('exec')
+        ->will($this->throwException(new PDOException()));
+
+    // mock the request environment.  (part of slim)
+    $env = Environment::mock([
+        'REQUEST_METHOD' => 'PUT',
+        'REQUEST_URI'    => '/games/1',
+        ]);
+    $req = Request::createFromEnvironment($env);
+    $requestBody = ["name" => "Chrono Cross", "year" => "1999", "console" => "Playstation 1"];
+    $req =  $req->withParsedBody($requestBody);
+    $this->app->getContainer()['request'] = $req;
+
+    // actually run the request through the app.
+    $response = $this->app->run(true);
+    // assert expected status code and body
+    $this->assertSame(400, $response->getStatusCode());
+    $this->assertSame('{"status":400,"message":"Invalid data provided to update"}', (string)$response->getBody());
+  }
+}

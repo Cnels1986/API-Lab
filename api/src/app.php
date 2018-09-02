@@ -53,8 +53,14 @@ class App
          $this->logger->addInfo("GET /games/".$id);
          // query
          $game = $this->db->query('SELECT * from games where id='.$id)->fetch();
-         $jsonResponse = $response->withJson($game);
-         return $jsonResponse;
+
+         if($game){
+           $response =  $response->withJson($game);
+         } else {
+           $errorData = array('status' => 404, 'message' => 'not found');
+           $response = $response->withJson($errorData, 404);
+         }
+         return $response;
      });
 
      /*
@@ -85,7 +91,16 @@ class App
      $app->put('/games/{id}', function (Request $request, Response $response, array $args) {
          $id = $args['id'];
          $this->logger->addInfo("PUT /games/".$id);
-         // build query string
+
+         // checks if game exists
+         $game = $this->db->query('SELECT * from games where id='.$id)->fetch();
+         if(!$game){
+           $errorData = array('status' => 404, 'message' => 'not found');
+           $response = $response->withJson($errorData, 404);
+           return $response;
+         }
+
+         // game exists, time to build query string
          $updateString = "UPDATE games SET ";
          $fields = $request->getParsedBody();
          $keysArray = array_keys($fields);
@@ -93,13 +108,20 @@ class App
          foreach($fields as $field => $value) {
            $updateString = $updateString . "$field = '$value'";
            if ($field != $last_key) {
-             // conditionally add a comma to avoid sql syntax problems
+             // add comma
              $updateString = $updateString . ", ";
            }
          }
          $updateString = $updateString . " WHERE id = $id;";
+
          // execute query
-         $this->db->exec($updateString);
+         try {
+           $this->db->exec($updateString);
+         } catch (\PDOException $e) {
+           $errorData = array('status' => 400, 'message' => 'Invalid data provided to update');
+           return $response->withJson($errorData, 400);
+         }
+         
          // return updated record
          $game = $this->db->query('SELECT * from games where id='.$id)->fetch();
          $jsonResponse = $response->withJson($game);
@@ -118,9 +140,10 @@ class App
       -H 'Cache-Control: no-cache' \
       -H 'Content-Type: application/x-www-form-urlencoded' \
       -H 'Postman-Token: a23837f2-2b01-4776-89a8-8b528bd94aec' \
-      -d 'id=8&name=Doom&year=2016&console=PS4'
+      -d 'id=12&name=Doom&year=2016&console=PS4'
      */
      $app->post('/games', function (Request $request, Response $response, array $args) {
+        $id = 1;
          $this->logger->addInfo("POST /games");
 
          $addString = "INSERT INTO games ";
@@ -136,6 +159,9 @@ class App
            if( $field != $last_key) {
              // adds the comma between values
              $addString = $addString . ", ";
+           }
+           if($field == "id"){
+             $id = $value;
            }
          }
 
@@ -156,8 +182,12 @@ class App
          }
          // closes the create query from the information sent
          $addString = $addString . ");";
+
          // query is executed
          $this->db->exec($addString);
+         $game = $this->db->query('SELECT * from games where id='.$id)->fetch();
+         $jsonResponse = $response->withJson($game);
+         return $jsonResponse;
      });
 
      $this->app = $app;
