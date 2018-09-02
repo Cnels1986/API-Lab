@@ -37,3 +37,5 @@
 [2018-09-01 22:09:37] my_logger.INFO: POST /games [] []
 [2018-09-01 22:10:41] my_logger.INFO: POST /games [] []
 [2018-09-01 22:13:08] my_logger.INFO: POST /games [] []
+[2018-09-02 19:09:13] my_logger.INFO: GET /games [] []
+[2018-09-02 19:09:19] my_logger.INFO: GET /games/2 [] []
