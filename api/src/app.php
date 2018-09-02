@@ -14,6 +14,7 @@ class App
      $config['db']['dbname'] = 'apidb';
 
      $app = new \Slim\App(['settings' => $config]);
+
      $container = $app->getContainer();
      $container['db'] = $db;
 
@@ -27,6 +28,7 @@ class App
      // test function i use to make sure app is working, returns Hello, ______
      $app->get('/hello/{name}', function (Request $request, Response $response, array $args) {
          $name = $args['name'];
+         $this->logger->addInfo('get request to /hello/'.$name);
          $response->getBody()->write("Hello, $name");
          return $response;
      });
