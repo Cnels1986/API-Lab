@@ -199,14 +199,10 @@ class TodoTest extends TestCase
 
     // mock the query class & fetchAll functions
     $query = $this->createMock('mockQuery');
-    $query->method('fetch')
-    ->willReturn(json_decode($resultString, true)
-    );
-    $this->db->method('query')
-    ->willReturn($query);
+    $query->method('fetch')->willReturn(json_decode($resultString, true));
+    $this->db->method('query')->willReturn($query);
     //mocks where the update failed!!!
-    $this->db->method('exec')
-    ->will($this->throwException(new PDOException()));
+    $this->db->method('exec')->will($this->throwException(new PDOException()));
 
     // mock the request environment.  (part of slim)
     $env = Environment::mock([
@@ -271,5 +267,34 @@ class TodoTest extends TestCase
     // assert expected status code and body
     $this->assertSame(404, $response->getStatusCode());
     $this->assertSame('{"status":404,"message":"not found"}', (string)$response->getBody());
+  }
+
+
+
+
+  public function testCreateGameFailed() {
+    // test successful request
+    $resultString = '{"id":"10","name":"Super Mario 64","year":"1997","console":"Nintendo 64"}';
+
+    // mock the query class & fetchAll functions
+    $query = $this->createMock('mockQuery');
+    $query->method('fetch')->willReturn(json_decode($resultString, true));
+    $this->db->method('query')->willReturn($query);
+    //mocks where the update failed!!!
+    $this->db->method('exec')->will($this->throwException(new PDOException()));
+
+    $env = Environment::mock([
+    'REQUEST_METHOD' => 'POST',
+    'REQUEST_URI'    => '/games',
+    ]);
+    $req = Request::createFromEnvironment($env);
+    $requestBody = ["name" => "Super Mario 64", "year" => "1997", "console" => "Nintendo 64"];
+    $req =  $req->withParsedBody($requestBody);
+    $this->app->getContainer()['request'] = $req;
+
+    // actually run the request through the app.
+    $response = $this->app->run(true);
+    $this->assertSame(400, $response->getStatusCode());
+    $this->assertSame('{"status":400,"message":"Invalid data provided to update"}', (string)$response->getBody());
   }
 }
