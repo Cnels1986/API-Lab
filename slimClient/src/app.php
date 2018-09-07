@@ -73,6 +73,21 @@ class App
      });
 
 
+
+     $app->get('/games/{id}/edit', function (Request $request, Response $response, array $args) {
+         $id = $args['id'];
+         $responseRecord = makeApiRequest('games/'.$id);
+         $templateVariables = [
+           "title" => "Edit Game",
+           "game" => $responseRecord
+         ];
+         var_dump($responseRecord);
+         return $this->renderer->render($response, "/gameEdit.html", $templateVariables);
+
+     });
+
+
+
      //endpoint that will allow user to add a new game to the interface. Uses the gamesForm.html for the interface
      $app->get('/games/add', function(Request $request, Response $response) {
        $templateVariables = [

@@ -24,4 +24,19 @@ $(document).ready(function() {
       });
     }
   });
+
+
+
+  $("#gameEdit").submit(function(event) {
+    var form = $(this);
+    event.preventDefault();
+    $.ajax({
+      type: "PUT",
+      url: "http://localhost:3000/api/games/" + $(this).attr("data-id"),
+      data: form.serialize(), // serializes the form's elements.
+      success: function(data) {
+        window.location.replace("http://localhost:3000/slimClient");
+      }
+    });
+  });
 });
