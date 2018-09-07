@@ -128,7 +128,7 @@ class App
       }
 
       // return updated record
-      $game = $this->db->query('SELECT * from games where id='.$id)->fetch();
+      $game = $this->db->query('SELECT * from games ORDER BY id desc LIMIT 1')->fetch();
       $jsonResponse = $response->withJson($game);
       return $jsonResponse;
     });
@@ -147,58 +147,99 @@ class App
     -H 'Postman-Token: a23837f2-2b01-4776-89a8-8b528bd94aec' \
     -d 'id=12&name=Doom&year=2016&console=PS4'
     */
-    $app->post('/games', function (Request $request, Response $response, array $args) {
-      $id = 1;
-      $this->logger->addInfo("POST /games");
+    // $app->post('/games', function (Request $request, Response $response, array $args) {
+    //   $id = 1;
+    //   $this->logger->addInfo("POST /games");
+    //
+    //   $addString = "INSERT INTO games ";
+    //   $addString = $addString . "(";
+    //
+    //   $fields = $request->getParsedBody();
+    //   $keysArray = array_keys($fields);
+    //   $last_key = end($keysArray);
+    //
+    //   // first loop adds the different column names
+    //   foreach($fields as $field => $value) {
+    //     $addString = $addString . "$field";
+    //     if( $field != $last_key) {
+    //       // adds the comma between values
+    //       $addString = $addString . ", ";
+    //     }
+    //     if($field == "id"){
+    //       $id = $value;
+    //     }
+    //   }
+    //
+    //   $addString = $addString . ") VALUES (";
+    //   // second loop adds the values for each of the columns
+    //   foreach($fields as $field => $value) {
+    //     //adds quotes for the 2 strings that could be used for the query
+    //     if($field == "name" || $field == "console") {
+    //       $addString = $addString . " '$value' ";
+    //     }
+    //     //numbers
+    //     else {
+    //       $addString = $addString . "$value";
+    //     }
+    //     if($field != $last_key) {
+    //       $addString = $addString . ", ";
+    //     }
+    //   }
+    //   // closes the create query from the information sent
+    //   $addString = $addString . ");";
+    //
+    //   // execute query
+    //   var_dump($addString);
+    //   try {
+    //     $this->db->exec($addString);
+    //   } catch (\PDOException $e) {
+    //     $errorData = array('status' => 400, 'message' => 'Invalid data provided to update');
+    //     return $response->withJson($errorData, 400);
+    //   }
+    //   $game = $this->db->query('SELECT * from games where id='.$id)->fetch();
+    //   $jsonResponse = $response->withJson($game);
+    //   return $jsonResponse;
+    // });
 
-      $addString = "INSERT INTO games ";
-      $addString = $addString . "(";
 
-      $fields = $request->getParsedBody();
-      $keysArray = array_keys($fields);
-      $last_key = end($keysArray);
+    $app->post('/games', function (Request $request, Response $response) {
+        $this->logger->addInfo("POST /games/");
 
-      // first loop adds the different column names
-      foreach($fields as $field => $value) {
-        $addString = $addString . "$field";
-        if( $field != $last_key) {
-          // adds the comma between values
-          $addString = $addString . ", ";
+        // build query string
+        $createString = "INSERT INTO games ";
+        $fields = $request->getParsedBody();
+        $keysArray = array_keys($fields);
+        $last_key = end($keysArray);
+        $values = '(';
+        $fieldNames = '(';
+        foreach($fields as $field => $value) {
+          $values = $values . "'"."$value"."'";
+          $fieldNames = $fieldNames . "$field";
+          if ($field != $last_key) {
+            // conditionally add a comma to avoid sql syntax problems
+            $values = $values . ", ";
+            $fieldNames = $fieldNames . ", ";
+          }
         }
-        if($field == "id"){
-          $id = $value;
+        $values = $values . ')';
+        $fieldNames = $fieldNames . ') VALUES ';
+        $createString = $createString . $fieldNames . $values . ";";
+        // execute query
+        try {
+          $this->db->exec($createString);
+        } catch (\PDOException $e) {
+          var_dump($e);
+          $errorData = array('status' => 400, 'message' => 'Invalid data provided to add game');
+          return $response->withJson($errorData, 400);
         }
-      }
+        // return updated record
+        $game = $this->db->query('SELECT * from games ORDER BY id desc LIMIT 1')->fetch();
+        $jsonResponse = $response->withJson($games);
 
-      $addString = $addString . ") VALUES (";
-      // second loop adds the values for each of the columns
-      foreach($fields as $field => $value) {
-        //adds quotes for the 2 strings that could be used for the query
-        if($field == "name" || $field == "console") {
-          $addString = $addString . " '$value' ";
-        }
-        //numbers
-        else {
-          $addString = $addString . "$value";
-        }
-        if($field != $last_key) {
-          $addString = $addString . ", ";
-        }
-      }
-      // closes the create query from the information sent
-      $addString = $addString . ");";
-
-      // execute query
-      try {
-        $this->db->exec($addString);
-      } catch (\PDOException $e) {
-        $errorData = array('status' => 400, 'message' => 'Invalid data provided to update');
-        return $response->withJson($errorData, 400);
-      }
-      $game = $this->db->query('SELECT * from games where id='.$id)->fetch();
-      $jsonResponse = $response->withJson($game);
-      return $jsonResponse;
+        return $jsonResponse;
     });
+
+
 
     $this->app = $app;
   }
