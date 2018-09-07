@@ -1,5 +1,4 @@
 $(document).ready(function() {
-  alert("test");
   $("#gamesForm").submit(function(event) {
     var form = $(this);
     event.preventDefault();
@@ -8,7 +7,6 @@ $(document).ready(function() {
       url: "http://localhost:3000/api/games",
       data: form.serialize(), // serializes the form's elements.
       success: function(data) {
-        alert("test2");
         window.location.replace("http://localhost:3000/slimClient/");
       }
     });

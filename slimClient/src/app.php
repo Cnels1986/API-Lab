@@ -36,7 +36,7 @@ class App
        return json_decode($response, true);
      }
 
-     
+
 
      $app->get('/', function (Request $request, Response $response, array $args) {
        $responseRecords = makeApiRequest('games');
@@ -45,8 +45,8 @@ class App
          $tableRows = $tableRows . "<tr>";
          $tableRows = $tableRows . "<td>".$game["name"]."</td><td>".$game["console"]."</td><td>".$game["year"]."</td>";
          $tableRows = $tableRows . "<td>
-         <a href='http://localhost:8080/slimClient/games/".$game["id"]."' class='btn btn-primary'>View Details</a>
-         <a href='http://localhost:8080/slimClient/games/".$game["id"]."/edit' class='btn btn-secondary'>Edit</a>
+         <a href='http://localhost:3000/slimClient/games/".$game["id"]."/view' class='btn btn-primary'>View Details</a>
+         <a href='http://localhost:3000/slimClient/games/".$game["id"]."/edit' class='btn btn-secondary'>Edit</a>
          <a data-id='".$game["id"]."' class='btn btn-danger deletebtn'>Delete</a>
 
          </td>";
@@ -62,6 +62,18 @@ class App
 
 
 
+     $app->get('/games/{id}/view', function (Request $request, Response $response, array $args) {
+        $id = $args['id'];
+        $responseRecords = makeApiRequest('games/'.$id);
+        $templateVariables = [
+          "title" => "View Game",
+          "game" => $responseRecords
+        ];
+        return $this->renderer->render($response, "/gamePage.html", $templateVariables);
+     });
+
+
+     //endpoint that will allow user to add a new game to the interface. Uses the gamesForm.html for the interface
      $app->get('/games/add', function(Request $request, Response $response) {
        $templateVariables = [
          "type" => "new",
