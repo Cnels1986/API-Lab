@@ -25,13 +25,6 @@ class App
       return $logger;
     };
 
-    // test function i use to make sure app is working, returns Hello, ______
-    $app->get('/hello/{name}', function (Request $request, Response $response, array $args) {
-      $name = $args['name'];
-      $this->logger->addInfo('get request to /hello/'.$name);
-      $response->getBody()->write("Hello, $name");
-      return $response;
-    });
 
     // gets all games from the database
     $app->get('/games', function (Request $request, Response $response) {
@@ -41,6 +34,7 @@ class App
       $jsonResponse = $response->withJson($game);
       return $jsonResponse;
     });
+
 
     /*
     Function will find a game from the table based on the id given
@@ -63,6 +57,7 @@ class App
       return $response;
     });
 
+
     /*
     Function will delete a game from the table from the id given
 
@@ -80,6 +75,7 @@ class App
       }
       return $response;
     });
+
 
     /*
     Function will find the game based on the given id then update the different fields with the provided information
@@ -133,6 +129,7 @@ class App
       return $jsonResponse;
     });
 
+
     /*
     Function will add a row to the games table with the information provided.
     Similar to the update function, it constructs an INSERT query based on the data
@@ -145,62 +142,8 @@ class App
     -H 'Cache-Control: no-cache' \
     -H 'Content-Type: application/x-www-form-urlencoded' \
     -H 'Postman-Token: a23837f2-2b01-4776-89a8-8b528bd94aec' \
-    -d 'id=12&name=Doom&year=2016&console=PS4'
+    -d 'name=Doom&year=2016&console=PS4'
     */
-    // $app->post('/games', function (Request $request, Response $response, array $args) {
-    //   $id = 1;
-    //   $this->logger->addInfo("POST /games");
-    //
-    //   $addString = "INSERT INTO games ";
-    //   $addString = $addString . "(";
-    //
-    //   $fields = $request->getParsedBody();
-    //   $keysArray = array_keys($fields);
-    //   $last_key = end($keysArray);
-    //
-    //   // first loop adds the different column names
-    //   foreach($fields as $field => $value) {
-    //     $addString = $addString . "$field";
-    //     if( $field != $last_key) {
-    //       // adds the comma between values
-    //       $addString = $addString . ", ";
-    //     }
-    //     if($field == "id"){
-    //       $id = $value;
-    //     }
-    //   }
-    //
-    //   $addString = $addString . ") VALUES (";
-    //   // second loop adds the values for each of the columns
-    //   foreach($fields as $field => $value) {
-    //     //adds quotes for the 2 strings that could be used for the query
-    //     if($field == "name" || $field == "console") {
-    //       $addString = $addString . " '$value' ";
-    //     }
-    //     //numbers
-    //     else {
-    //       $addString = $addString . "$value";
-    //     }
-    //     if($field != $last_key) {
-    //       $addString = $addString . ", ";
-    //     }
-    //   }
-    //   // closes the create query from the information sent
-    //   $addString = $addString . ");";
-    //
-    //   // execute query
-    //   var_dump($addString);
-    //   try {
-    //     $this->db->exec($addString);
-    //   } catch (\PDOException $e) {
-    //     $errorData = array('status' => 400, 'message' => 'Invalid data provided to update');
-    //     return $response->withJson($errorData, 400);
-    //   }
-    //   $game = $this->db->query('SELECT * from games where id='.$id)->fetch();
-    //   $jsonResponse = $response->withJson($game);
-    //   return $jsonResponse;
-    // });
-
 
     $app->post('/games', function (Request $request, Response $response) {
         $this->logger->addInfo("POST /games/");
@@ -238,8 +181,6 @@ class App
 
         return $jsonResponse;
     });
-
-
 
     $this->app = $app;
   }
