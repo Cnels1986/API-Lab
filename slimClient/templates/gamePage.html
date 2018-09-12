@@ -11,13 +11,22 @@
 <div class="container">
   <h1 class="title"><?php echo $title; ?></h1>
 
-  <h2>Name:</h2>
-  <h3><?php echo $game['name']; ?></h3>
+  <div class="info">
+    <h2>Name:</h2>
+    <h2><?php echo $game['name']; ?></h2>
+  </div>
 
-  <h2>Console:</h2>
-  <h3><?php echo $game['console']; ?></h3>
+  <div class="info">
+    <h2>Console:</h2>
+    <h2><?php echo $game['console']; ?></h2>
+  </div>
 
-  <h2>Release year:</h2>
-  <h3><?php echo $game['year']; ?></h3>
-  <a class="btn btn-info" href="http://localhost:3000/slimClient/">Back</a>
+  <div class="info">
+    <h2>Release year:</h2>
+    <h2><?php echo $game['year']; ?></h2>
+  </div>
+
+  <div class="button">
+    <a class="btn btn-info button" href="http://localhost:3000/slimClient/">Back</a>
+  </div>
 </div>

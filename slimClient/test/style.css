@@ -7,6 +7,7 @@ body{
   width: 70%;
   height: 100%;
   padding-top: 25px;
+  margin-top: 15px;
   background-color: white;
 }
 
@@ -14,4 +15,19 @@ body{
   text-align: center;
   font-size: 40px;
   font-weight: bold;
+}
+
+.info{
+  margin: 0 auto;
+  width: 80%;
+  padding: 0px 20%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.button{
+  /* margin: 0 auto; */
+  margin-top: 15px;
+  text-align: center;
 }
