@@ -26,7 +26,6 @@ class App
 
      function makeApiRequest($path) {
        $ch = curl_init();
-
        //Set the URL that you want to GET by using the CURLOPT_URL option.
        curl_setopt($ch, CURLOPT_URL, "http://localhost/api/$path");
        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -37,15 +36,18 @@ class App
      }
 
 
-
+     /*
+     Endpoint that lists all the rows from the Games table. Creates one long string with the html added in the correct spots, then sends the games.html template to create html table that lists everything
+     */
      $app->get('/', function (Request $request, Response $response, array $args) {
        $responseRecords = makeApiRequest('games');
        $tableRows = "";
        foreach($responseRecords as $game) {
          $tableRows = $tableRows . "<tr>";
-         $tableRows = $tableRows . "<td>".$game["name"]."</td><td>".$game["console"]."</td><td>".$game["year"]."</td>";
-         $tableRows = $tableRows . "<td>
-         <a href='http://localhost:3000/slimClient/games/".$game["id"]."/view' class='btn btn-primary'>View Details</a>
+         $tableRows = $tableRows . "<td class='gameTitle'>".$game["name"]."</td><td>".$game["console"]."</td><td>".$game["year"]."</td>";
+         $tableRows = $tableRows . "<td class='btn-group'>
+
+         <a href='http://localhost:3000/slimClient/games/".$game["id"]."/view' class='btn btn-primary'>Details</a>
          <a href='http://localhost:3000/slimClient/games/".$game["id"]."/edit' class='btn btn-secondary'>Edit</a>
          <a data-id='".$game["id"]."' class='btn btn-danger deletebtn'>Delete</a>
 
@@ -61,7 +63,9 @@ class App
      });
 
 
-
+     /*
+     Endpoint that will show the info for one row/game within the table, determined by the ID provided. Uses the temple gamePage.html
+     */
      $app->get('/games/{id}/view', function (Request $request, Response $response, array $args) {
         $id = $args['id'];
         $responseRecords = makeApiRequest('games/'.$id);
@@ -73,7 +77,9 @@ class App
      });
 
 
-
+     /*
+     Endpoint that lets the user edit the information for a specfic game within the table, based on its ID. Uses the form found on the temple on gameEdit.html
+     */
      $app->get('/games/{id}/edit', function (Request $request, Response $response, array $args) {
          $id = $args['id'];
          $responseRecord = makeApiRequest('games/'.$id);
@@ -81,7 +87,7 @@ class App
            "title" => "Edit Game",
            "game" => $responseRecord
          ];
-         var_dump($responseRecord);
+         // var_dump($responseRecord);
          return $this->renderer->render($response, "/gameEdit.html", $templateVariables);
 
      });
