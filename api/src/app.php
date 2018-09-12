@@ -135,7 +135,7 @@ class App
     Similar to the update function, it constructs an INSERT query based on the data
     sent to it
 
-    Test curl for adding a new game, id may need to be changed
+    Test curl for adding a new game
 
     curl -X POST \
     http://192.168.33.10/api/games \
@@ -144,7 +144,6 @@ class App
     -H 'Postman-Token: a23837f2-2b01-4776-89a8-8b528bd94aec' \
     -d 'name=Doom&year=2016&console=PS4'
     */
-
     $app->post('/games', function (Request $request, Response $response) {
         $this->logger->addInfo("POST /games/");
 
@@ -177,7 +176,7 @@ class App
         }
         // return updated record
         $game = $this->db->query('SELECT * from games ORDER BY id desc LIMIT 1')->fetch();
-        $jsonResponse = $response->withJson($games);
+        $jsonResponse = $response->withJson($game);
 
         return $jsonResponse;
     });
