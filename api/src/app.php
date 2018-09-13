@@ -66,6 +66,7 @@ class App
     $app->delete('/games/{id}', function (Request $request, Response $response, array $args) {
       $id = $args['id'];
       $this->logger->addInfo("DELETE /games/".$id);
+      // delete query
       $game = $this->db->exec('DELETE FROM games where id='.$id);
       if($game){
         $response = $response->withStatus(200);
@@ -147,13 +148,14 @@ class App
     $app->post('/games', function (Request $request, Response $response) {
         $this->logger->addInfo("POST /games/");
 
-        // build query string
-        $createString = "INSERT INTO games ";
+        // creates a string to use that inserts that provided data into the table
+        $addString = "INSERT INTO games ";
         $fields = $request->getParsedBody();
         $keysArray = array_keys($fields);
         $last_key = end($keysArray);
         $values = '(';
         $fieldNames = '(';
+        // loops through and gets the keys and their values
         foreach($fields as $field => $value) {
           $values = $values . "'"."$value"."'";
           $fieldNames = $fieldNames . "$field";
@@ -165,16 +167,18 @@ class App
         }
         $values = $values . ')';
         $fieldNames = $fieldNames . ') VALUES ';
-        $createString = $createString . $fieldNames . $values . ";";
-        // execute query
+        // combines everything together to make the insert query
+        $addString = $addString . $fieldNames . $values . ";";
+
+
         try {
-          $this->db->exec($createString);
+          $this->db->exec($addString);
         } catch (\PDOException $e) {
           var_dump($e);
           $errorData = array('status' => 400, 'message' => 'Invalid data provided to add game');
           return $response->withJson($errorData, 400);
         }
-        // return updated record
+
         $game = $this->db->query('SELECT * from games ORDER BY id desc LIMIT 1')->fetch();
         $jsonResponse = $response->withJson($game);
 
