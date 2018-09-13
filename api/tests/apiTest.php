@@ -54,7 +54,6 @@ class TodoTest extends TestCase
   }
 
 
-
   // Test to get a single game from the table
   public function testGetGame() {
     // test successful request
@@ -76,7 +75,6 @@ class TodoTest extends TestCase
     $this->assertSame(200, $response->getStatusCode());
     $this->assertSame($resultString, (string)$response->getBody());
   }
-
 
 
   // This test will test whether or not we can update the information for a game within the table
@@ -108,7 +106,6 @@ class TodoTest extends TestCase
   }
 
 
-
   // Function will test whether the delete function is working for the api
   public function testDeleteGame() {
     $query = $this->createMock('mockQuery');
@@ -125,7 +122,6 @@ class TodoTest extends TestCase
     // assert expected status code and body
     $this->assertSame(200, $response->getStatusCode());
   }
-
 
 
   // fuction will deal with error handling when it comes to finding a game by its id
@@ -146,7 +142,6 @@ class TodoTest extends TestCase
     $this->assertSame($response->getStatusCode(), 404);
     $this->assertSame('{"status":404,"message":"not found"}', (string)$response->getBody());
   }
-
 
 
   // function deals with the error handling if the wrong data is sent when api is trying to update a game
@@ -259,11 +254,10 @@ class TodoTest extends TestCase
     // test successful request
     $resultString = '{"id":"10","name":"Super Mario 64","year":"1997","console":"Nintendo 64"}';
 
-    // mock the query class & fetchAll functions
     $query = $this->createMock('mockQuery');
     $query->method('fetch')->willReturn(json_decode($resultString, true));
     $this->db->method('query')->willReturn($query);
-    //mocks where the update failed!!!
+    //mocks where the create fails
     $this->db->method('exec')->will($this->throwException(new PDOException()));
 
     $env = Environment::mock([
@@ -278,6 +272,5 @@ class TodoTest extends TestCase
     // actually run the request through the app.
     $response = $this->app->run(true);
     $this->assertSame(400, $response->getStatusCode());
-    // $this->assertSame('{"status":400,"message":"Invalid data provided to create entry"}', (string)$response->getBody());
   }
 }
